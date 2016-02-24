@@ -1,10 +1,35 @@
 #!/bin/sh
 
 export GIT_WORK_TREE=/
-if [[ "$1" == "autocommit" ]]
-then
-  git status --porcelain | grep -v '^??' || exit 0
-  exec git commit -a -m 'autocommit'
-fi
 
-exec git $@
+case "$1" in
+  autocommit)
+    shift
+
+    do_push=false
+    while getopts ":p" opt; do
+      case "$opt" in
+        p) do_push=true ;;
+      esac
+    done
+
+    git status --porcelain | grep -v '^??' || exit 0
+    git commit -a -m 'autocommit' || exit $?
+    if $do_push; then
+      git push
+    fi
+  ;;
+
+  initbranch)
+    shift
+    branch="$1"
+    git symbolic-ref HEAD "refs/heads/$branch"
+    git config "branch.$branch.remote" origin
+    git config "branch.$branch.merge" "refs/heads/$branch"
+    git reset --mixed
+
+  ;;
+  *)
+    exec git $@
+  ;;
+esac
