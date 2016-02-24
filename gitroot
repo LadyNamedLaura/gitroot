@@ -1,0 +1,10 @@
+#!/bin/sh
+
+export GIT_WORK_TREE=/
+if [[ "$1" == "autocommit" ]]
+then
+  git status --porcelain | grep -v '^??' || exit 0
+  exec git commit -a -m 'autocommit'
+fi
+
+exec git $@
