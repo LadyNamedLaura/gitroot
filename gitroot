@@ -23,15 +23,16 @@ case "$1" in
   initbranch)
     shift
     branch="$1"
+    gitdir="$(git rev-parse --git-dir)"
     git symbolic-ref HEAD "refs/heads/$branch"
     git config "branch.$branch.remote" origin
     git config "branch.$branch.merge" "refs/heads/$branch"
     
-    if test -f ".git/refs/heads/$branch"
+    if test -f "$gitdir/refs/heads/$branch"
     then
       git reset --mixed
     else
-      rm .git/index
+      rm "$gitdir/index"
     fi
     
     exit 0
